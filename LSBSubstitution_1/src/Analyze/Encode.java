@@ -48,15 +48,25 @@ public class Encode {
     }
     public BufferedImage getEmbedImage(String text){
         text=getTextHidden(text);
+        System.out.println(text);
         char[] binHidden =text.toCharArray();
-        int count=0;
-        for (int x=0;x<image.getWidth();x++){
-            for (int y=0;y<image.getHeight();y++){
+        int count=0,x=0,y=0;
+        int ok=0;
+        for (x=0;x<image.getWidth();x++){
+            for (y=0;y<image.getHeight();y++){
                 int rgb=image.getRGB(x, y);
+                if(ok==0){
+                    System.out.println(Integer.toBinaryString(rgb));
+                    ok=1;
+                }
                 rgb = (binHidden[count++] == '0')?(rgb & 0xFFFEFFFF):(rgb | 0x00010000); //Replace LSB Red value
                 rgb = (binHidden[count++] == '0')?(rgb & 0xFFFFFEFF):(rgb | 0x00000100); //Replace LSB Green value
                 rgb = (binHidden[count++] == '0')?(rgb & 0xFFFFFFFE):(rgb | 0x00000001); //Replace LSB Blue value
                 image.setRGB(x, y, rgb);
+                if(ok==1){
+                    System.out.println(Integer.toBinaryString(rgb));
+                    ok=2;
+                }
                 if (count==binHidden.length) break;
             }
             if (count==binHidden.length) break;

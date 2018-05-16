@@ -51,7 +51,7 @@ public class Decode {
         return (char)r;
     }
     public String getTextDecoded(){
-        Integer lengthText=null;
+        //Integer lengthText=null;
         String text="";
         int count=0,textLength=-1;
         for (int x=0;x<image.getWidth();x++){
@@ -65,8 +65,9 @@ public class Decode {
             }
             if (textLength>0 && count>textLength) break;
         }
+        System.out.println(text);
         String result="";
-        if (text.length()>=textLength*8){
+        if (text.length()>=textLength*8-9){
             text=text.substring(0,textLength*8);
             
             for (int i=8;i<text.length();i+=8){
