@@ -40,10 +40,15 @@ public class Encode {
     }
     public String getTextHidden(String text){
         int textLength=text.length();
-        String textHidden=padding(textLength)+MessageToBinary(text);
+        //String textHidden=padding(textLength)+MessageToBinary(text);
+        String textHidden=MessageToBinary(text);
+        textHidden="001111111"+textHidden;
+        textHidden+="001111111";
+        
         while(textHidden.length()%3!=0){
             textHidden+="0";
         }
+        
         return textHidden;
     }
     public BufferedImage getEmbedImage(String text){

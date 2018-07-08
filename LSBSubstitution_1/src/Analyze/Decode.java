@@ -53,28 +53,55 @@ public class Decode {
     public String getTextDecoded(){
         //Integer lengthText=null;
         String text="";
+        String lastText="";
         int count=0,textLength=-1;
+        Boolean breakPoint=false;
+        Boolean findStart=false;
         for (int x=0;x<image.getWidth();x++){
             for (int y=0;y<image.getHeight();y++){
                 text+=getLSBits(image.getRGB(x, y));
                 count+=3;
-                if (count==9){
-                    textLength=Integer.parseInt(text.substring(0, 8),2)+1;
+                textLength=count/8;
+                if (text.length()>=9){
+                    if (findStart==false){
+                        String lastGroup=text.substring(text.length()-9);
+                        if (lastGroup.equals("001111111")){
+                            findStart=true;
+                            text="";
+                        }
+                    }
+                    else{
+                        String lastGroup=text.substring(text.length()-9);
+                        if (lastGroup.equals("001111111")){
+                            breakPoint=true;
+                            //text=lastText;
+                            break;
+                        }
+                    }
+                    
                 }
-                if (textLength>0 && count>textLength*8) break;
+                if (breakPoint) break;
+//                if (count==9){
+//                    textLength=Integer.parseInt(text.substring(0, 8),2)+1;
+//                }
+//                if (textLength>0 && count>textLength*8) break;
             }
-            if (textLength>0 && count>textLength) break;
+            if (breakPoint) break;
+            //if (textLength>0 && count>textLength) break;
         }
         System.out.println(text);
         String result="";
-        if (text.length()>=textLength*8-9){
-            text=text.substring(0,textLength*8);
+        textLength--;
+
+        if (text.length()>=9){
+            text=text.substring(0,text.length()-9);
             
-            for (int i=8;i<text.length();i+=8){
+            for (int i=0;i<text.length();i+=8){
+                if (i>=text.length() || i+8>text.length()) break;
                 result+=BinToChar(text.substring(i, i+8));
             }
         }
-        if (result=="")
+        if (result==""||findStart==false)
             result="<<No hidden message found>>";
         return result;
     }

@@ -1,3 +1,4 @@
+package View;
 
 import Analyze.Decode;
 import java.awt.Image;

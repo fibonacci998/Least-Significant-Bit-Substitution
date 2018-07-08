@@ -1,9 +1,13 @@
+package View;
+
 
 import Analyze.Decode;
 import Analyze.Encode;
+import Controller.ControllEncryptScreen;
 import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
@@ -22,6 +26,9 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -41,9 +48,10 @@ public class EncryptScreen extends javax.swing.JFrame {
     //String path="";
     BufferedImage originImage;
     BufferedImage stegoImage;
-
+    Controller.ControllEncryptScreen controll;
     public EncryptScreen() {
         initComponents();
+        controll=new ControllEncryptScreen(this);
         setVisible(true);
     }
 
@@ -71,6 +79,14 @@ public class EncryptScreen extends javax.swing.JFrame {
         btnQuit = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                CloseJFrame(evt);
+            }
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel1.setText("Hiding data in image using LSB substitution");
@@ -224,78 +240,34 @@ public class EncryptScreen extends javax.swing.JFrame {
 
     private void btnBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseActionPerformed
         // TODO add your handling code here:
-        JFileChooser fileChooser=new JFileChooser();
-        //set directory of open function at same directory's project
-        fileChooser.setCurrentDirectory(new File("."));
-        //if (fileChooser.showOpenDialog()==JFileChooser.APPROVE_OPTION){
-        fileChooser.showOpenDialog(null);
-        File f=fileChooser.getSelectedFile();
-        //path=fileChooser.getSelectedFile().toString();
-        pnOriginalImage.removeAll();
-        BufferedImage img=null;
-        try {
-            img=ImageIO.read(f);
-        } catch (IOException ex) {
-            Logger.getLogger(EncryptScreen.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        originImage=img;
-        Image dimg=img.getScaledInstance(300, 300, Image.SCALE_SMOOTH);
-        JLabel jl=new JLabel();
-        jl.setSize(300, 300);
-        jl.setIcon(new ImageIcon(dimg));
-        jl.setHorizontalAlignment(JLabel.CENTER);
-        pnOriginalImage.add(jl);
-        pnOriginalImage.repaint();
-        txtFileSrc.setText(fileChooser.getSelectedFile().toString());
-        //}
+        controll.getFileFromBrowser();
     }//GEN-LAST:event_btnBrowseActionPerformed
 
     private void btnSaveImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveImageActionPerformed
         // TODO add your handling code here:
-        JFileChooser fileChooser=new JFileChooser();
-        //set directory of open function at same directory's project
-        fileChooser.setCurrentDirectory(new File("."));
-        int result=fileChooser.showSaveDialog(null);
-        if (result==JFileChooser.APPROVE_OPTION){
-            File file=fileChooser.getSelectedFile();
-            try {
-                file.createNewFile();
-            } catch (IOException ex) {
-                Logger.getLogger(EncryptScreen.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            BufferedImage image=stegoImage;
-            try {
-                ImageIO.write(image, "png", file);
-            } catch (IOException ex) {
-                Logger.getLogger(EncryptScreen.class.getName()).log(Level.SEVERE, null, ex);
-            }    
-        }
+        controll.saveFile();
     }//GEN-LAST:event_btnSaveImageActionPerformed
 
-
-    BufferedImage convertArrayToBufferedImage(byte[] array){
-        BufferedImage img=null;
-        try {
-            img=ImageIO.read(new ByteArrayInputStream(array));
-        } catch (IOException ex) {
-            Logger.getLogger(EncryptScreen.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return img;
-    }
     private void btnHideMessageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHideMessageActionPerformed
 
-        Encode encode=new Encode(originImage);
-        stegoImage=encode.getEmbedImage(txtSecretText.getText());
-        
-        Image dimg=stegoImage.getScaledInstance(300, 300, Image.SCALE_SMOOTH);
-        JLabel jl=new JLabel();
-        jl.setSize(300, 300);
-        jl.setIcon(new ImageIcon(dimg));
-        jl.setHorizontalAlignment(JLabel.CENTER);
-        pnStegoImage.add(jl);
-        pnStegoImage.repaint();
+        controll.hideMessage();
         //------------
     }//GEN-LAST:event_btnHideMessageActionPerformed
+    private void quitAction(){
+        //JOptionPane.showMessageDialog(this, "Exiting");
+        this.dispose();
+    }
+    private void CloseJFrame(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_CloseJFrame
+        // TODO add your handling code here:
+        //JOptionPane.showConfirmDialog(this, "hello");
+        this.dispose();
+        //quitAction();
+    }//GEN-LAST:event_CloseJFrame
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        quitAction();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
@@ -347,4 +319,56 @@ public class EncryptScreen extends javax.swing.JFrame {
     private javax.swing.JTextField txtFileSrc;
     private javax.swing.JTextField txtSecretText;
     // End of variables declaration//GEN-END:variables
+
+    public BufferedImage getOriginImage() {
+        return originImage;
+    }
+
+    public void setOriginImage(BufferedImage originImage) {
+        this.originImage = originImage;
+    }
+
+    public BufferedImage getStegoImage() {
+        return stegoImage;
+    }
+
+    public void setStegoImage(BufferedImage stegoImage) {
+        this.stegoImage = stegoImage;
+    }
+
+    public JPanel getPnOriginalImage() {
+        return pnOriginalImage;
+    }
+
+    public void setPnOriginalImage(JPanel pnOriginalImage) {
+        this.pnOriginalImage = pnOriginalImage;
+    }
+
+    public JPanel getPnStegoImage() {
+        return pnStegoImage;
+    }
+
+    public void setPnStegoImage(JPanel pnStegoImage) {
+        this.pnStegoImage = pnStegoImage;
+    }
+
+    public JTextField getTxtFileSrc() {
+        return txtFileSrc;
+    }
+
+    public void setTxtFileSrc(JTextField txtFileSrc) {
+        this.txtFileSrc = txtFileSrc;
+    }
+
+    public JTextField getTxtSecretText() {
+        return txtSecretText;
+    }
+
+    public void setTxtSecretText(JTextField txtSecretText) {
+        this.txtSecretText = txtSecretText;
+    }
+
+    
+
+    
 }
